@@ -14,3 +14,4 @@ This is my neovim config, feel free to fork it as a starting point for yours. Se
 - HTML
 - CSS
 - Tailwind (?)
+- md (?)
