@@ -1,4 +1,9 @@
-vim.wo.relativenumber = true
-vim.wo.number = true
+require('plugins')
+require('settings')
 
-
+vim.cmd([[
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
+  augroup end
+  ]])
