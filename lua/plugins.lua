@@ -12,57 +12,107 @@ end
 local packer_bootstrap = ensure_packer()
 
 return require('packer').startup(function(use)
-      use 'wbthomason/packer.nvim'
-      -- My plugins here
-      -- use 'foo1/bar1.nvim'
-      -- use 'foo2/bar2.nvim'
+      -- GLOBAL DEPS
+      use "wbthomason/packer.nvim"
+      use "nvim-lua/plenary.nvim"
+      use "nvim-tree/nvim-web-devicons"
 
-      -- Automatically set up your configuration after cloning packer.nvim
-      -- Put this at the end after all plugins
-      if packer_bootstrap then
-            require('packer').sync()
-      end
-      
-      -- lualine
-      use {
+      -- COLORSCHEME: VAGUE THEME
+      use ({
+            'vague2k/vague.nvim',
+            lazy = false,
+            priority = 1000,
+            config = function()
+                  -- NOTE: you do not need to call setup if you don't want to.
+                  require("vague").setup({
+                        transparent = true,
+                  })
+                  vim.cmd("colorscheme vague")
+            end
+      })
+
+      --- ENVIRONMENT COMPONENTS
+      ---
+      -- STATUSLINE: LUALINE
+      use({
             "nvim-lualine/lualine.nvim",
-            requires = { 'nvim-tree/nvim-web-devicons' },
-      }
-      require('lualine').setup()
+            event = "BufEnter",
+            config = function()
+                  require("configs.lualine")
+            end,
+            requires = { "nvim-web-devicons" },
+      })
 
-      -- neotree
-      use {
+      -- FINDER: TELESCOPE
+      use({
+	      "nvim-telescope/telescope.nvim",
+	      tag = "0.1.1",
+	      requires = {
+		      { "nvim-lua/plenary.nvim" }
+	      }
+      })
+
+      -- FILETREE: NEOTREE
+      use ({
             "nvim-neo-tree/neo-tree.nvim",
+	    branch = "v2.x",
             requires = {
                   'MunifTanjim/nui.nvim',
                   'nvim-lua/plenary.nvim',
                   'nvim-tree/nvim-web-devicons'
             },
-      }
+      })
       require('neo-tree').setup()
 
-      -- treesitter
-      use {
-            'nvim-treesitter/nvim-treesitter',
-            run = 'TSUpdate',
-      }
-      require'nvim-treesitter.configs'.setup({
-            ensure_installed = { "lua", "markdown", "typescript", "javascript", "c", "cpp", "css", "html", "python", "java" },
-            sync_install = true,
-            auto_install = true,
-            highlight = {
-                  enable = true,
-                  additional_vim_regex_highlighting = false,
-            }
+
+
+      --- ENVIRONMENT UTILS
+      ---
+      -- TREESITTER
+      use({
+            "nvim-treesitter/nvim-treesitter",
+            run = function()
+                  require("nvim-treesitter.install").update({ with_sync = true })
+            end,
+            config = function()
+                  require("configs.treesitter")
+            end,
+      })
+      use({
+            "windwp/nvim-ts-autotag",
+            after = "nvim-treesitter"
       })
 
-      -- vague theme
-      use {
-            "vague2k/vague.nvim",
-            lazy = false,
-            priority = 1000,
-            config = function()
-                  vim.cmd("colorscheme vague")
-            end
-      }
+      -- GITSIGNS
+      use({
+	      "lewis6991/gitsigns.nvim",
+	      config = function()
+		      require("configs.gitsigns")
+	      end,
+      })
+
+      -- MD PREVIEW
+      use({
+	      "iamcco/markdown-preview.nvim",
+	      run = function()
+		      vim.fn["mkdp#util#install"]()
+	      end,
+      })
+
+      use({
+	      "windwp/nvim-autopairs",
+	      config = function()
+		      require("configs.autopairs")
+	      end,
+      })
+
+
+      --- LANGUAGE SERVERS
+      ---
+
+
+      --- PACKER REINSTALLER
+      if packer_bootstrap then
+            require('packer').sync()
+      end
 end)
