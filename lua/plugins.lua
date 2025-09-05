@@ -107,12 +107,34 @@ return require('packer').startup(function(use)
       })
 
 
-      --- LANGUAGE SERVERS
-      ---
-
+      -- LSP SETUP: LAZY LSP NVIM
+      -- Ensure NIX PM is installed
+      use({
+            "dundalek/lazy-lsp.nvim",
+            requires = {
+                  "neovim/nvim-lspconfig",
+                  {
+                        "VonHeikemen/lsp-zero.nvim",
+                        branch = "v3.x"
+                  },
+                  "hrsh7th/cmp-nvim-lsp",
+                  "hrsh7th/nvim-cmp",
+            },
+            config = function()
+                  local lsp_zero = require("lsp-zero")
+                  
+                  lsp_zero.on_attach(function(client, bufnr)
+                        lsp_zero.default_keymaps({
+                              buffer = bufnr,
+                              preserve_mappings = false
+                        })
+                  end)
+                  require("lazy-lsp").setup {}
+            end,
+      })
 
       --- PACKER REINSTALLER
       if packer_bootstrap then
             require('packer').sync()
-      end
+    end
 end)
